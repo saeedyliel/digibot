@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav>
+        <div>سامانه مدیریت مشتریان تست نژاد</div>
+        <div>
+            <a href="index.html">لیست کاربران</a>
+        </div>
+    </nav>
+    <section class="page">
+        <div class="box">
+            <div>
+                <a href="create.html" class="btn">ایجاد کاربر</a>    
+            </div>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>شناسه</th>
+                            <th>نام</th>
+                            <th>نام خانوادگی</th>
+                            <th>تلفن همراه</th>
+                            <th>مدیریت</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const endpoint = 'http://127.0.0.1:8000';
+        async function loadUsers(){
+            document.getElementById('users').innerHTML = "";
+            const url = `${endpoint}/users`
+            const response = await fetch(url);
+            const users = await response.json();
+
+            Object.keys(users).forEach(user_id => {
+                addUserToList(users[user_id], user_id)
+            });
+
+            if(Object.keys(users).length === 0){
+                const table = document.getElementById('users');
+                table.innerHTML = `<tr><td colspan="5">کاربری یافت نشد !</td></tr>`
+            }
+        }
+
+        async function addUserToList(user, user_id){
+            const table = document.getElementById('users');
+            const userRow = `<tr><td>${user_id}</td><td>${user.firstname}</td><td>${user.lastname}</td><td>${user.mobile}</td><td><a class="btn" href="edit.html?id=${user_id}">ویرایش</a><button class="btn" onclick="removeUser(${user_id})">حذف</button></td></tr>`
+            table.innerHTML = table.innerHTML + userRow;
+        }
+
+        async function removeUser(user_id){
+            const url = `${endpoint}/users/${user_id}`
+            const response = await fetch(url, {
+                method: "DELETE",
+            });
+
+            loadUsers();
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>
